@@ -4,7 +4,7 @@ from regex import F
 from Crypto import Random
 from Crypto.Cipher import AES
 
-is_windows = True if platform.system() == "Windows" else False
+is_windows = platform.system() == "Windows"
 
 if is_windows:
     os.system("title Anubis @ github.com/0sir1ss/Anubis")
@@ -17,7 +17,7 @@ def clear():
 
 def pause():
     if is_windows:
-        os.system(f"pause >nul")
+        os.system("pause >nul")
     else:
         input()
 
@@ -32,38 +32,38 @@ def error(error):
     pause(); clear(); leave()
 
 def red(text):
-    os.system(""); faded = ""
+    os.system("")
+    faded = ""
     for line in text.splitlines():
         green = 250
         for character in line:
             green -= 5
-            if green < 0:
-                green = 0
+            green = max(green, 0)
             faded += (f"\033[38;2;255;{green};0m{character}\033[0m")
         faded += "\n"
     return faded
 
 def blue(text):
-    os.system(""); faded = ""
+    os.system("")
+    faded = ""
     for line in text.splitlines():
         green = 0
         for character in line:
             green += 3
-            if green > 255:
-                green = 255
+            green = min(green, 255)
             faded += (f"\033[38;2;0;{green};255m{character}\033[0m")
         faded += "\n"
     return faded
 
 def water(text):
-    os.system(""); faded = ""
+    os.system("")
+    faded = ""
     green = 10
     for line in text.splitlines():
         faded += (f"\033[38;2;0;{green};255m{line}\033[0m\n")
-        if not green == 255:
+        if green != 255:
             green += 15
-            if green > 255:
-                green = 255
+            green = min(green, 255)
     return faded
 
 def purple(text):
@@ -102,20 +102,19 @@ def remove_docs(source):
             last_col = 0
         if start_col > last_col:
             out += (" " * (start_col - last_col))
-        if token_type == tokenize.COMMENT:
-            pass
-        elif token_type == tokenize.STRING:
-            if prev_toktype != tokenize.INDENT:
-                if prev_toktype != tokenize.NEWLINE:
-                    if start_col > 0:
-                        out += token_string
-        else:
+        if (
+            token_type != tokenize.COMMENT
+            and token_type == tokenize.STRING
+            and prev_toktype != tokenize.INDENT
+            and prev_toktype != tokenize.NEWLINE
+            and start_col > 0
+            or token_type not in [tokenize.COMMENT, tokenize.STRING]
+        ):
             out += token_string
         prev_toktype = token_type
         last_col = end_col
         last_lineno = end_line
-    out = '\n'.join(l for l in out.splitlines() if l.strip())
-    return out
+    return '\n'.join(l for l in out.splitlines() if l.strip())
 
 def do_rename(pairs, code):
     for key in pairs:
@@ -155,41 +154,56 @@ def carbon(code):
     for func in funcs:
         if func.name == "__init__":
             continue
-        newname = "".join(random.choice(["I", "l"]) for i in range(random.randint(8, 20)))
+        newname = "".join(
+            random.choice(["I", "l"]) for _ in range(random.randint(8, 20))
+        )
         while newname in used:
-            newname = "".join(random.choice(["I", "l"]) for i in range(random.randint(8, 20)))
+            newname = "".join(
+                random.choice(["I", "l"]) for _ in range(random.randint(8, 20))
+            )
         used.add(newname)
         pairs[func.name] = newname
 
     for _class in classes:
-        newname = "".join(random.choice(["I", "l"]) for i in range(random.randint(8, 20)))
+        newname = "".join(
+            random.choice(["I", "l"]) for _ in range(random.randint(8, 20))
+        )
         while newname in used:
-            newname = "".join(random.choice(["I", "l"]) for i in range(random.randint(8, 20)))
+            newname = "".join(
+                random.choice(["I", "l"]) for _ in range(random.randint(8, 20))
+            )
         used.add(newname)
         pairs[_class.name] = newname
 
     for arg in args:
-        newname = "".join(random.choice(["I", "l"]) for i in range(random.randint(8, 20)))
+        newname = "".join(
+            random.choice(["I", "l"]) for _ in range(random.randint(8, 20))
+        )
         while newname in used:
-            newname = "".join(random.choice(["I", "l"]) for i in range(random.randint(8, 20)))
+            newname = "".join(
+                random.choice(["I", "l"]) for _ in range(random.randint(8, 20))
+            )
         used.add(newname)
         pairs[arg] = newname
 
     for attr in attrs:
-        newname = "".join(random.choice(["I", "l"]) for i in range(random.randint(8, 20)))
+        newname = "".join(
+            random.choice(["I", "l"]) for _ in range(random.randint(8, 20))
+        )
         while newname in used:
-            newname = "".join(random.choice(["I", "l"]) for i in range(random.randint(8, 20)))
+            newname = "".join(
+                random.choice(["I", "l"]) for _ in range(random.randint(8, 20))
+            )
         used.add(newname)
         pairs[attr] = newname
 
     string_regex = r"('|\")[\x1f-\x7e]{1,}?('|\")"
 
     original_strings = re.finditer(string_regex, code, re.MULTILINE)
-    originals = []
-
-    for matchNum, match in enumerate(original_strings, start=1):
-        originals.append(match.group().replace("\\", "\\\\"))
-
+    originals = [
+        match.group().replace("\\", "\\\\")
+        for matchNum, match in enumerate(original_strings, start=1)
+    ]
     placeholder = os.urandom(16).hex()
     code = re.sub(string_regex, f"'{placeholder}'", code, 0, re.MULTILINE)
 
@@ -223,13 +237,13 @@ def carbon(code):
         "[   > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > > >   ]", 
     ]
 
-    i = int(0)
+    i = 0
 
     while True:
         print("\r"+f"        {cycles[i]}", end="")
         i += 1
         if i == len(cycles):
-            i = int(0)
+            i = 0
         found = False
         code = do_rename(pairs, code)
         for key in pairs:
@@ -241,7 +255,7 @@ def carbon(code):
     replace_placeholder = r"('|\")" + placeholder + r"('|\")"
     for original in originals:
         code = re.sub(replace_placeholder, original, code, 1, re.MULTILINE)
-    print("\r"+f"        {cycles[len(cycles) -1]}\n\n", end="")
+    print("\r" + f"        {cycles[-1]}\n\n", end="")
 
     return code
 
@@ -316,7 +330,13 @@ threading.Thread(target=debugger, daemon=True).start()\n\n"""
 
 def anubis(code):
     newcode = "\n"
-    classes = ["".join(random.choice(string.ascii_lowercase + string.ascii_uppercase) for i in range(random.randint(8, 20))) for i in range(random.randint(2, 5))]
+    classes = [
+        "".join(
+            random.choice(string.ascii_lowercase + string.ascii_uppercase)
+            for _ in range(random.randint(8, 20))
+        )
+        for _ in range(random.randint(2, 5))
+    ]
     for i in classes:
         newcode += f"class {i}:\n    def __init__(self):\n"
         funcs = ["__"+"".join(random.choice(string.ascii_lowercase + string.ascii_uppercase) for i in range(random.randint(8, 20))) for i in range(random.randint(5, 15))]
@@ -356,8 +376,7 @@ class Encryption:
         newcode = f"{wall}{key}{wall}"
         for line in source.split("\n"):
             newcode += self.encrypt(line) + wall
-        code = f"import ancrypt\nancrypt.load(__file__)\n'''\n{newcode}\n'''"
-        return code
+        return f"import ancrypt\nancrypt.load(__file__)\n'''\n{newcode}\n'''"
 
 
 banner = f"""
@@ -402,8 +421,8 @@ while True:
         bug = False
         break
     else:
-        print(red(f"        [!] Error : Invalid option [y/n]"), end="")
-    
+        print(red("        [!] Error : Invalid option [y/n]"), end="")
+
 while True:
     ans = input(purple("        [>] Junk Code [y/n] : ") + "\033[38;2;148;0;230m").lower()
     if ans == "y":
@@ -413,7 +432,7 @@ while True:
         junk = False
         break
     else:
-        print(red(f"        [!] Error : Invalid option [y/n]"), end="")
+        print(red("        [!] Error : Invalid option [y/n]"), end="")
 
 while True:
     ans = input(purple("        [>] Rename Classes, Functions, Variables & Parameters [y/n] : ") + "\033[38;2;148;0;230m").lower()
@@ -424,7 +443,7 @@ while True:
         rename = False
         break
     else:
-        print(red(f"        [!] Error : Invalid option [y/n]"), end="")
+        print(red("        [!] Error : Invalid option [y/n]"), end="")
 
 if rename:
     while True:
@@ -436,7 +455,7 @@ if rename:
             oxy = True
             break
         else:
-            print(red(f"        [!] Error : Invalid option [c/o]"), end="")
+            print(red("        [!] Error : Invalid option [c/o]"), end="")
 
 
 while True:
@@ -448,7 +467,7 @@ while True:
         extra = False
         break
     else:
-        print(red(f"        [!] Error : Invalid option [y/n]"), end="")
+        print(red("        [!] Error : Invalid option [y/n]"), end="")
 
 print(" ")
 key = base64.b64encode(os.urandom(32)).decode()
@@ -486,14 +505,21 @@ if extra == False:
             compile = False
             break
         else:
-            print(red(f"        [!] Error : Invalid option [y/n]"), end="")
+            print(red("        [!] Error : Invalid option [y/n]"), end="")
 
     if compile == True:
         basic_params = ["nuitka", "--mingw64", "--onefile", "--enable-plugin=numpy", "--include-module=psutil", "--remove-output", "--assume-yes-for-downloads", name]
         p = subprocess.Popen(basic_params, stdout=subprocess.DEVNULL, shell=True, cwd=os.getcwd())
         print(red("\n        [!] Exe may take a while to compile\n        [!] Nuitka Information:\n\n"), end="")
         p.wait()
-        print(blue(f"\n        [>] Code has been successfully compiled @ {name[:-3] + '.exe'}"), end="")
+        print(
+            blue(
+                f"\n        [>] Code has been successfully compiled @ {name[:-3]}.exe"
+            ),
+            end="",
+        )
 
 print(blue("\n        [>] Press any key to exit... "), end="")
-pause(); clear(); leave()
+pause()
+clear()
+leave()

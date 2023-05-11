@@ -37,20 +37,20 @@ class NQueens:
         Check if a given position is under attack from any of
         the previously placed queens (check column and diagonal positions)
         """
-        for i in range(ocuppied_rows):
-            if positions[i] == column or positions[i] - i == column - ocuppied_rows or positions[i] + i == column + ocuppied_rows:
-                return False
-        return True
+        return not any(
+            positions[i] == column
+            or positions[i] - i == column - ocuppied_rows
+            or positions[i] + i == column + ocuppied_rows
+            for i in range(ocuppied_rows)
+        )
 
     def __show_full_board(self, positions):
         """Show the full NxN board"""
         for row in range(self.__size):
-            line = ""
-            for column in range(self.__size):
-                if positions[row] == column:
-                    line += "Q "
-                else:
-                    line += ". "
+            line = "".join(
+                "Q " if positions[row] == column else ". "
+                for column in range(self.__size)
+            )
             print(line)
         print("\n")
 
@@ -59,9 +59,7 @@ class NQueens:
         Show the queens positions on the board in compressed form,
         each number represent the occupied column position in the corresponding row.
         """
-        line = ""
-        for i in range(self.__size):
-            line += str(positions[i]) + " "
+        line = "".join(f"{str(positions[i])} " for i in range(self.__size))
         print(line)
 
 def main():
